@@ -1,2 +1,23 @@
-target\
+# Build output
+target/
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# Compiled class files
+*.class
+
+# MCP configuration (contains tokens)
 mcp.json
+
+# Database files
+*.db
+
+# Checkstyle output
+checkstyle-output.txt
+
+# OS files
+.DS_Store
+Thumbs.db
