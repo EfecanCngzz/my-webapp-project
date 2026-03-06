@@ -16,7 +16,9 @@ mcp.json
 *.db
 
 # Checkstyle output
+checkstyle-out.txt
 checkstyle-output.txt
+checkstyle*.txt
 
 # OS files
 .DS_Store

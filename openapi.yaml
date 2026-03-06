@@ -1,0 +1,223 @@
+openapi: 3.0.0
+info:
+  title: Tasks CRUD API
+  description: A simple CRUD API for managing tasks (TODO items). Created for SE 3318 Software Construction.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/my-webapp-project
+    description: Local development server
+paths:
+  /api/tasks:
+    get:
+      summary: Get all tasks
+      description: Retrieves a list of all tasks in the system.
+      responses:
+        '200':
+          description: A list of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+              example:
+                - id: 1
+                  title: "Buy groceries"
+                  completed: false
+                - id: 2
+                  title: "Finish SE 3318 assignment"
+                  completed: true
+    post:
+      summary: Create a new task
+      description: Creates a new task with the provided title and completed status.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+            example:
+              title: "Write API documentation"
+              completed: false
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              example:
+                id: 3
+                title: "Write API documentation"
+                completed: false
+        '400':
+          description: Bad request (e.g., missing title)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Title is required"
+
+  /api/tasks/{id}:
+    get:
+      summary: Get task by ID
+      description: Retrieves a specific task using its unique ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The task ID
+          example: 1
+      responses:
+        '200':
+          description: A single task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              example:
+                id: 1
+                title: "Buy groceries"
+                completed: false
+        '400':
+          description: Invalid task ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Invalid task id"
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Task not found"
+    
+    put:
+      summary: Update a task
+      description: Updates an existing task by its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The task ID
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+            example:
+              title: "Buy groceries and cook dinner"
+              completed: true
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              example:
+                id: 1
+                title: "Buy groceries and cook dinner"
+                completed: true
+        '400':
+          description: Invalid task ID format or bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Invalid task id"
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Task not found"
+                
+    delete:
+      summary: Delete a task
+      description: Deletes an existing task by its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The task ID
+          example: 1
+      responses:
+        '200':
+          description: Task deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                message: "Task deleted successfully"
+        '400':
+          description: Invalid task ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Invalid task id"
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Task not found"
+
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique identifier for a task
+        title:
+          type: string
+          description: The title/description of the task
+        completed:
+          type: boolean
+          description: Status indicating whether the task is completed
+    TaskRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: The title/description of the task
+        completed:
+          type: boolean
+          description: Status indicating whether the task is completed
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message details
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message details

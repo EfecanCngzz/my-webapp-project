@@ -1,6 +1,6 @@
 package com.example.servlet;
 
-import com.example.dao.TaskDAO;
+import com.example.dao.TaskDao;
 import com.example.model.Task;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
@@ -25,7 +25,7 @@ public class TasksServlet extends HttpServlet {
   public void init() throws ServletException {
     super.init();
     // Initialize database on servlet startup
-    TaskDAO.initialize();
+    TaskDao.initialize();
   }
 
   @Override
@@ -40,12 +40,12 @@ public class TasksServlet extends HttpServlet {
     try {
       if (pathInfo == null || pathInfo.equals("/")) {
         // GET /api/tasks - Get all tasks
-        List<Task> tasks = TaskDAO.readAll();
+        List<Task> tasks = TaskDao.readAll();
         out.print(gson.toJson(tasks));
       } else {
         // GET /api/tasks/{id} - Get task by id
         int id = Integer.parseInt(pathInfo.substring(1));
-        Task task = TaskDAO.read(id);
+        Task task = TaskDao.read(id);
         if (task != null) {
           out.print(gson.toJson(task));
           resp.setStatus(HttpServletResponse.SC_OK);
@@ -78,7 +78,7 @@ public class TasksServlet extends HttpServlet {
       }
 
       // Create task
-      Task createdTask = TaskDAO.create(task);
+      Task createdTask = TaskDao.create(task);
       resp.setStatus(HttpServletResponse.SC_CREATED);
       out.print(gson.toJson(createdTask));
     } catch (Exception e) {
@@ -105,9 +105,16 @@ public class TasksServlet extends HttpServlet {
 
       int id = Integer.parseInt(pathInfo.substring(1));
       Task task = gson.fromJson(req.getReader(), Task.class);
+
+      if (task == null || task.getTitle() == null || task.getTitle().isEmpty()) {
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        out.print(gson.toJson(new ErrorResponse("Title is required")));
+        return;
+      }
+
       task.setId(id);
 
-      if (TaskDAO.update(task)) {
+      if (TaskDao.update(task)) {
         resp.setStatus(HttpServletResponse.SC_OK);
         out.print(gson.toJson(task));
       } else {
@@ -141,7 +148,7 @@ public class TasksServlet extends HttpServlet {
 
       int id = Integer.parseInt(pathInfo.substring(1));
 
-      if (TaskDAO.delete(id)) {
+      if (TaskDao.delete(id)) {
         resp.setStatus(HttpServletResponse.SC_OK);
         out.print(gson.toJson(new SuccessResponse("Task deleted successfully")));
       } else {
